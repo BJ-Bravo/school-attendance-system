@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Student</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a2a5a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #f5f5f5;
+            padding: 30px;
+            width: 380px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: none;
+            border-bottom: 1px solid gray;
+            background: transparent;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background: #0a2a5a;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .back {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .back a {
+            text-decoration: none;
+            color: #0a2a5a;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="card">
+    <h2>Edit Student Details</h2>
+
+    <form th:action="@{/editStudent}" method="post" th:object="${student}">
+
+        <!-- Hidden field to hold the student ID -->
+        <input type="hidden" th:field="*{id}" />
+
+        <label>First Name:</label>
+        <input type="text" th:field="*{firstName}" required />
+
+        <label>Last Name:</label>
+        <input type="text" th:field="*{lastName}" required />
+
+        <label>Roll No:</label>
+        <input type="number" th:field="*{rollNo}" required />
+
+        <button class="btn" type="submit">Update Student</button>
+    </form>
+
+    <div class="back">
+        <a th:href="@{/attendance}">← Back to Attendance</a>
+    </div>
+</div>
+
+</body>
+</html>

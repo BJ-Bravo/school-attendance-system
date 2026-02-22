@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Attendance</title>
+
+    <style>
+
+        /* -------- HEADER -------- */
+        .header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+
+            background:#0a2a5a;
+            color:white;
+
+            padding:12px 20px;
+            font-family:Arial;
+        }
+
+        .school-name{
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .add-btn{
+            background:#2ecc71;
+            color:white;
+            border:none;
+            padding:8px 12px;
+            border-radius:6px;
+            cursor:pointer;
+
+            float:right;          /* move right */
+        }
+
+        .logout-btn{
+            background:#db0000;
+            color:white;
+            border:none;
+            padding:8px 12px;
+            border-radius:6px;
+            cursor:pointer;
+
+            float:right;          /* move right */
+            margin-right:10px;    /* space from Add button */
+        }
+
+
+        .add-btn:hover{
+            background:#27ae60;
+        }
+
+
+        /* -------- TABLE WRAPPER -------- */
+
+        .table-wrapper{
+            max-width:100%;
+            overflow:auto;
+            border:1px solid #ccc;
+            margin-top:10px;
+        }
+
+
+        /* -------- TABLE STYLE -------- */
+
+        table{
+            width:100%;
+            border-collapse: collapse;
+        }
+
+        /* HEADER FIX */
+        th{
+            position:sticky;
+            top:0;
+            background:#f1f1f1;
+            z-index:2;
+        }
+
+        /* FIX NAME COLUMN */
+        .name-col{
+            position:sticky;
+            left:0;
+            background:white;
+            z-index:3;
+            min-width:140px;
+        }
+
+        /* FIX ROLL COLUMN */
+        .roll-col{
+            position:sticky;
+            left:140px;
+            background:white;
+            z-index:3;
+            min-width:70px;
+        }
+
+        th,td{
+            padding:6px;
+            text-align:center;
+            border:1px solid #ccc;
+        }
+
+        /* Alternating Rows */
+        tr:nth-child(even){
+            background:#f9f9f9;
+        }
+
+        tr:nth-child(odd){
+            background:white;
+        }
+
+
+        /* -------- P/A CIRCLE -------- */
+
+        .circle {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            user-select: none;
+            cursor: pointer;
+        }
+
+
+        .present-green {
+            background-color: #28a745; /* dark green */
+        }
+
+        .absent-red {
+            background-color: #dc3545; /* red */
+        }
+
+        .absent-green {
+            background-color: #27ae60; /* some green variant for absent marked differently */
+        }
+
+        .grey {
+            background-color: #6c757d; /* grey */
+            cursor: not-allowed;
+        }
+
+        /* Submit Button */
+
+        .submit-btn{
+            margin:10px;
+            padding:8px 14px;
+
+            background:#2ecc71;
+            color:#0a2a5a;
+
+            border:none;
+            border-radius:6px;
+
+            cursor:pointer;
+        }
+
+        .table-wrapper {
+            overflow: visible !important;
+        }
+
+        .edit-delete-controls {
+            display: none;
+            background: #f0f0f0;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            white-space: nowrap;
+            margin-top: 5px; /* space below name */
+        }
+
+        .edit-delete-controls a, .edit-delete-controls button {
+            font-size: 14px;
+        }
+
+        .edit-delete-controls a:hover, .edit-delete-controls button:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- ===== HEADER ===== -->
+
+<div class="header">
+
+    <div style="display:flex; align-items:center; gap:20px;">
+        <div class="school-name">
+            Froebel English School - Class [[${session.assignedClass}]]
+        </div>
+    </div>
+
+    <!-- Buttons (right side) -->
+    <div style="margin-left:auto; display:flex; gap:10px;">
+        <button class="logout-btn" onclick="window.location.href='/logout'">
+            ⏻ Logout
+        </button>
+
+        <button class="add-btn" onclick="window.location.href='/addStudent'">
+            + Add Student
+        </button>
+    </div>
+
+</div>
+
+
+<!-- ===== ATTENDANCE TABLE ===== -->
+
+<div class="table-wrapper">
+    <table>
+        <tr>
+            <th class="name-col">Name</th>
+            <th class="roll-col">Roll No</th>
+            <th th:each="date : ${dates}" th:text="${date.dayOfMonth}"></th>
+        </tr>
+
+        <tr th:each="student : ${students}">
+
+            <!--adding delete and edit options to this column -->
+          <!--  <td class="name-col">
+                <span th:text="${student.firstName}"></span>
+                <span th:text="${student.lastName}"></span>
+            </td> -->
+
+            <td class="name-col" style="position: relative;">
+                <!-- Student Name clickable -->
+                <span
+                      class="student-name"
+                      th:text="${student.firstName} + ' ' + ${student.lastName}"
+                      style="cursor:pointer; font-weight: bold;"
+                      th:attr="data-studentid=${student.id}"
+                      onclick="toggleEditDelete(this)">
+    </span>
+
+                <!-- Hidden edit/delete controls -->
+                <div
+                        th:id="'controls-' + ${student.id}"
+                        class="edit-delete-controls"
+                        style="display:none; background:#f0f0f0; padding:5px; border:1px solid #ccc; border-radius:4px; white-space: nowrap; margin-top: 5px;">
+                    <!-- Edit and delete buttons -->                        <!-- Edit link -->
+                    <a th:href="@{'/editStudent?id=' + ${student.id}}"
+                       style="margin-right: 10px; border-right: 1px solid #ccc; text-decoration:none; color:blue; font-weight:600;">
+                        ✏️ Edit
+                    </a>
+
+                    <!-- Delete button -->
+                    <button th:attr="data-studentid=${student.id}"
+                            onclick="deleteStudent(this)"
+                            style="background: none; border:none; color:red; cursor:pointer; font-weight:600; padding-left: 10px">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </td>
+
+            <td class="roll-col" th:text="${student.rollNo}"></td>
+
+            <td th:each="date : ${dates}" th:id="'cell-' + ${student.id} + '-' + ${date}">
+                <div th:with="
+            attendanceMapEntry=${attendanceMap[student.id]},
+            status=${attendanceMapEntry != null} ? ${attendanceMapEntry.get(date)} : null,
+            isToday=${date.equals(today)},
+            isPast=${date.isBefore(today)},
+            isPresent=${status == T(com.froebelenglishschool.attendance_management.entity.Attendance.Status).PRESENT},
+            className=${isToday} ?
+                        (${status == null} ? 'circle present-green' :
+                       (${isPresent} ? 'circle present-green' : 'circle absent-red')) :
+                     (${isPast} ?
+                       (${status == null} ? 'circle grey' : (${isPresent} ? 'circle present-green' : 'circle absent-red')) :
+                       'circle grey'),
+            displayText=${isToday} ?
+                           (${status == null} ? 'P' : (${isPresent} ? 'P' : 'A')) :
+                         (${status == null} ? 'A' : (${isPresent} ? 'P' : 'A'))
+          "
+                     th:classappend="${className}"
+                     th:text="${displayText}"
+                     th:attr="data-student-id=${student.id}, data-date=${date}, data-is-today=${isToday}">
+                </div>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<button class="submit-btn" onclick="submitAttendance()">Submit Attendance</button>
+
+<!-- ===== SCRIPT ===== -->
+
+<script>
+    const attendanceState = {};
+
+    // Attach event listeners to elements with data-is-today="true"
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-is-today="true"]').forEach(element => {
+            element.addEventListener('click', function() {
+                const studentId = this.getAttribute('data-student-id');
+                const date = this.getAttribute('data-date');
+                toggleAttendance(studentId, date);
+            });
+        });
+
+        // Initialize attendanceState for today's cells
+        const todayStr = new Date().toISOString().slice(0, 10);
+        document.querySelectorAll('[data-is-today="true"]').forEach(element => {
+            const studentId = element.getAttribute('data-student-id');
+            const date = element.getAttribute('data-date');
+            if (date === todayStr) {
+                attendanceState[studentId] = element.textContent;
+            }
+        });
+    });
+
+    function toggleAttendance(studentId, date) {
+        const cell = document.getElementById('cell-' + studentId + '-' + date).firstElementChild;
+        if (!cell) return;
+
+        let current = cell.textContent;
+        if (current === 'P') {
+            cell.textContent = 'A';
+            cell.className = 'circle absent-red';
+            attendanceState[studentId] = 'A';
+        } else {
+            cell.textContent = 'P';
+            cell.className = 'circle present-green';
+            attendanceState[studentId] = 'P';
+        }
+    }
+
+    function submitAttendance() {
+        fetch('/attendance/submit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(attendanceState)
+        })
+            .then(response => response.text())
+            .then(data => {
+                if (data === 'success') {
+                    alert('Attendance submitted successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to submit attendance.');
+                }
+            });
+    }
+
+    function toggleEditDelete(nameSpan) {
+        const studentId = nameSpan.getAttribute('data-studentid');
+        console.log('Student ID:', studentId);  // Check if this logs the correct ID
+
+        const controlsDiv = document.getElementById('controls-' + studentId);
+        console.log('Controls Div:', controlsDiv);  // Check if this finds the div
+
+        if (!controlsDiv) {
+            console.error('Controls div not found for ID:', 'controls-' + studentId);
+            return;
+        }
+
+        // Hide others
+        document.querySelectorAll('.edit-delete-controls').forEach(div => {
+            if(div !== controlsDiv) {
+                div.style.display = 'none';
+            }
+        });
+
+        // Toggle
+        const newDisplay = (controlsDiv.style.display === 'none' || controlsDiv.style.display === '') ? 'block' : 'none';
+        console.log('Setting display to:', newDisplay);
+        controlsDiv.style.display = newDisplay;
+    }
+
+    function deleteStudent(button) {
+        const studentId = button.getAttribute('data-studentid');
+
+        if (!confirm('Are you sure you want to delete this student?')) return;
+
+        fetch('/deleteStudent?id=' + studentId, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Student deleted successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to delete student.');
+                }
+            })
+            .catch(error => {
+                alert('Error deleting student. See console.');
+                console.error(error);
+            });
+    }
+</script>
+
+</body>
+</html>
