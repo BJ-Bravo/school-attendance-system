@@ -23,8 +23,7 @@ public class Attendance {
         PRESENT, ABSENT
     }
 
-    // Getters and setters for all fields
-
+    //Getter and Setter
     public Long getId() {
         return id;
     }

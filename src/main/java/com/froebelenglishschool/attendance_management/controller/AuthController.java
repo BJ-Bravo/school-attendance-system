@@ -1,6 +1,5 @@
 package com.froebelenglishschool.attendance_management.controller;
 
-import ch.qos.logback.core.model.Model;
 import com.froebelenglishschool.attendance_management.entity.Teacher;
 import com.froebelenglishschool.attendance_management.repository.TeacherRepository;
 
@@ -25,7 +24,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage() {
-        return "login";  // Thymeleaf template
+        return "login";
     }
 
     @PostMapping("/login")

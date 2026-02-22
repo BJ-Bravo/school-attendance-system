@@ -14,7 +14,7 @@ public class Teacher {
     private String password;
     private String assignedClass;
 
-    // Add getters and setters for all fields
+    //adding getters and setters
 
     public Long getId() {
         return id;

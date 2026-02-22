@@ -35,7 +35,7 @@ public class AttendanceController {
         }
 
         //System.out.println(student.getFirstName() +" "+student.getLastName()+" " +student.getRollNo());//TESTING BEAN
-        // Set or update session with the assigned class
+        //updating session with the assigned class
         session.setAttribute("assignedClass", assignedClass);
 
         List<Student> students = studentRepo.findByAssignedClassOrderByRollNo(assignedClass);
@@ -49,12 +49,12 @@ public class AttendanceController {
             monthDates.add(currentYearMonth.atDay(i));
         }
 
-        // Fetch attendance for the month for this class and students in a map for quick lookup
+        //this is to fetch the attendance for this month
         List<Attendance> attendanceList = attendanceRepo.findByStudent_AssignedClassAndDateBetween(assignedClass, firstDate, lastDate);
 
         Map<Long, Map<LocalDate, Attendance.Status>> attendanceMap = new HashMap<>();
         for (Attendance a : attendanceList) {
-            if (a.getStudent() != null) {  // Safety check
+            if (a.getStudent() != null) {
                 attendanceMap.putIfAbsent(a.getStudent().getId(), new HashMap<>());
                 attendanceMap.get(a.getStudent().getId()).put(a.getDate(), a.getStatus());
             }
@@ -66,7 +66,7 @@ public class AttendanceController {
         model.addAttribute("dates", monthDates);
         model.addAttribute("attendanceMap", attendanceMap);
         model.addAttribute("today", today);
-        model.addAttribute("className", assignedClass);  // Pass className for template use if needed
+        model.addAttribute("className", assignedClass);
 
         return "attendance";
     }

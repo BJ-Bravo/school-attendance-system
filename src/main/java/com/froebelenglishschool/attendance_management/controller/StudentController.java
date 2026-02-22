@@ -19,7 +19,7 @@ public class StudentController {
 
     @GetMapping("/addStudent")
     public String addStudentPage() {
-        return "addStudent"; // template page
+        return "addStudent";
     }
 
     @PostMapping("/addStudent")
@@ -40,7 +40,7 @@ public class StudentController {
         studentRepo.save(s);
 
         model.addAttribute("message", "Student Registered Successfully");
-        return "/addStudent"; // Show popup via frontend JS based on this message
+        return "/addStudent";
     }
 
     @GetMapping("/editStudent")
